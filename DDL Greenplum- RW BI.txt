@@ -1,0 +1,102 @@
+CREATE TABLE analytics.fact_service_events (
+	auditing_id int8 NULL,
+	subscriber_key int8 NULL,
+	msisdn varchar(20) NULL,
+	lac_id int4 NULL,
+	cell_id int4 NULL,
+	src_obj_key int4 NULL,
+	service_event_key int4 NULL,
+	country_key int4 NULL,
+	ntw_type_key int4 NULL,
+	svc_class_key int4 NULL,
+	primary_deduction_account_id int4 NULL,
+	fact_date int4 NULL,
+	fact_hour int4 NULL,
+	tac_id varchar(30) NULL,
+	transaction_amount numeric(18,3) NULL,
+	revenue numeric(18,3) NULL,
+	transaction_amount_1 numeric(18,3) NULL,
+	transaction_amount_2 numeric(18,3) NULL,
+	transaction_amount_3 numeric(18,3) NULL,
+	event_count int8 NULL,
+	event_usage numeric(21,3) NULL,
+	offer_id varchar(200) NULL,
+	product_id varchar(200) NULL,
+	offer_id_1 int4 NULL,
+	product_id_1 int4 NULL,
+	date_entered timestamp NOT NULL DEFAULT now(),
+	event_date date NULL
+)
+WITH (
+	appendonly=true,
+	orientation=column
+)
+DISTRIBUTED BY (msisdn)
+PARTITION BY RANGE(event_date) 
+          (
+          START ('2020-04-01'::date) END ('2022-01-01'::date) EVERY ('1 day'::interval) 
+          );
+
+
+CREATE TABLE analytics.fact_subscriber_tracking_archive (
+	subscriber_key int8 NULL,
+	access_method_identifier varchar(21) NULL,
+	last_service_usage_event_date date NULL,
+	last_service_usage_rge_event_date date NULL,
+	last_service_usage_data_date date NULL,
+	last_service_usage_am_date date NULL,
+	last_service_usage_voice_date date NULL,
+	last_service_usage_sms_date date NULL,
+	last_service_usage_event_date_prev date NULL,
+	last_service_usage_rge_event_date_prev date NULL,
+	last_service_usage_data_date_prev date NULL,
+	last_service_usage_am_date_prev date NULL,
+	last_service_usage_voice_date_prev date NULL,
+	last_service_usage_sms_date_prev date NULL,
+	rec_status int2 NULL,
+	rec_60_status int2 NULL,
+	rec_90_status int2 NULL,
+	rge_30_status int2 NULL,
+	rge_90_status int2 NULL,
+	data_status int2 NULL,
+	voice_status int2 NULL,
+	am_status int2 NULL,
+	qrec_status int2 NULL,
+	qrec_100mb_status int2 NULL,
+	current_tech_key int4 NULL,
+	previous_tech_key int4 NULL,
+	current_imsi varchar(25) NULL,
+	previous_imsi varchar(25) NULL,
+	current_imei varchar(25) NULL,
+	previous_imei varchar(25) NULL,
+	favorite_imei varchar(25) NULL,
+	current_lac_id int4 NULL,
+	current_cell_id int4 NULL,
+	previous_lac_id int4 NULL,
+	previous_cell_id int4 NULL,
+	favorite_lac_id int4 NULL,
+	favorite_cell_id int4 NULL,
+	service_class_key int4 NULL,
+	devicechanged int2 NULL,
+	simchanged int2 NULL,
+	simtype varchar(2) NULL,
+	activation_date date NULL,
+	rge_activation_date date NULL,
+	in_activation_date date NULL,
+	winback_date date NULL,
+	reconnection_date date NULL,
+	rec_churn_date date NULL,
+	system_churn_date date NULL,
+	disconnection_date date NULL,
+	fact_date int4 NULL,
+	event_date date NULL
+)
+WITH (
+	appendonly=true,
+	orientation=row
+)
+DISTRIBUTED BY (access_method_identifier)
+PARTITION BY RANGE(event_date) 
+          (
+          START ('2020-04-01'::date) END ('2022-01-01'::date) EVERY ('1 day'::interval)
+          );
