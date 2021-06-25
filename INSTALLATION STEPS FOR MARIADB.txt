@@ -1,0 +1,68 @@
+Download Below Packages and Put it in the Server
+galera-4-26.4.5-1.el7.centos.x86_64.rpm
+jemalloc-3.6.0-1.el7.x86_64.rpm
+MariaDB-backup-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-backup-debuginfo-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-client-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-columnstore-engine-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-common-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-compat-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-connect-engine-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-rocksdb-engine-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-server-10.5.4-1.el7.centos.x86_64.rpm
+MariaDB-shared-10.5.4-1.el7.centos.x86_64.rpm
+
+Run Below Commands
+rpm -ivh jemalloc-3.6.0-1.el7.x86_64.rpm
+yum install lsof rsync boost-program-options
+rpm -ivh galera-4-26.4.5-1.el7.centos.x86_64.rpm
+yum install boost*
+yum install expect
+yum install pcre2.x86_64
+yum remove mariadb-libs
+rpm -ivh MariaDB-*
+systemctl start mariadb
+ 
+cp -R -p /var/lib/mysql/* /cluster/mysql/
+cp -R -p /var/lib/columnstore/data1 /cluster/mysql/
+ln -s /cluster/mysql/data1 /var/lib/columnstore
+ 
+systemctl stop mariadb
+ 
+vi /etc/columnstore/Columnstore.xml
+<VersionBuffer>
+<!-- VersionBufferFileSize must be a multiple of 8192.
+One version buffer file will be put on each DB root. -->
+<VersionBufferFileSize>10GB</VersionBufferFileSize>
+</VersionBuffer>
+ 
+vi /etc/my.cnf.d/server.cnf
+[mysqld]
+tmpdir =/cluster/mysql_tmp/
+datadir=/cluster/mysql/
+wait_timeout=3000
+innodb_lock_wait_timeout=3600
+net_read_timeout=300
+net_write_timeout=600
+#(10GB) Innobufer
+innodb_buffer_pool_size=10737418240
+ 
+mysql_secure_installation
+vi /etc/columnstore/Columnstore.xml
+ 
+<User>root</User>
+<Password>root</Password>
+ 
+systemctl start mariadb
+
+
+
+
+
+
+To Uninstall the MariaDB
+rpm -e jemalloc-3.6.0-1.el7.x86_64.rpm
+rpm -e MariaDB-*
+rpm -e galera-4-26.4.5-1.el7.centos.x86_64.rpm
+ 
+yum remove package_name

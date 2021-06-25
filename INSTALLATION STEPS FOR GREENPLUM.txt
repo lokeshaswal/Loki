@@ -1,0 +1,70 @@
+https://network.pivotal.io/products/pivotal-gpdb#/releases/768164
+
+Installation Steps
+sudo yum install ./greenplum-db-<version>-<platform>.rpm
+Copy Greenpum package to all the server (All Servers)
+scp -P 922 greenplum-db-6.9.1-rhel7-x86_64.rpm user@ip:location_path
+sudo yum install ./greenplum-db-<version>-<platform>.rpm
+Create the user
+sudo adduser gpadmin
+sudo passwd gpadmin
+To enable 22 port for password less connectivity
+vi /etc/ssh/sshd_config 
+enable port 922
+systemctl restart sshd.service
+In master run below
+sudo chown -R gpadmin:gpadmin /usr/local/greenplum*
+su gpadmin
+source /usr/local/greenplum-db-6.9.1/greenplum_path.sh
+If Keygen is not enabled then run below
+ssh-keygen
+To enable Password less
+ssh-copy-id IP
+vi hostfile_exkeys
+IP's of all the segments not master
+gpssh-exkeys -f hostfile_exkeys
+gpssh -f hostfile_exkeys -e 'ls -l /usr/local/greenplum-db-6.9.1'
+On master
+mkdir -p /cluster/greenplum/master/
+chown gpadmin:gpadmin /cluster/greenplum/master/
+On slave
+sudo mkdir -p /cluster/greenplum/primary/
+sudo mkdir -p /cluster/greenplum/mirror/
+sudo chown -R gpadmin:gpadmin /cluster/greenplum/
+On master
+mkdir gpconfigs
+cd gpconfigs
+vi hostfile_gpinitsystem
+All the IP's including master
+cp /usr/local/greenplum-db-6.9.1/docs/cli_help/gpconfigs/gpinitsystem_config /home/gpadmin/gpconfigs/gpinitsystem_config
+vi gpinitsystem_config
+MASTER_HOSTNAME=masterhostname
+MASTER_DIRECTORY=/cluster/greenplum/master/
+declare -a DATA_DIRECTORY=/cluster/greenplum/primary/
+gpinitsystem -c gpconfigs/gpinitsystem_config -h gpconfigs/hostfile_gpinitsystem
+vi ~/.bashrc
+source /usr/local/greenplum-db/greenplum_path.sh
+export MASTER_DATA_DIRECTORY=/cluster/greenplum/master/gpseg-1
+source ~/.bashrc
+To create the database
+/usr/local/greenplum-db/bin/createdb gpadmin
+psql
+create database user;
+create user user with encrypted password 'password';
+\q
+vi pg_hba.conf
+host all biuser 127.0.0.1/28 trust
+host all biuser 172.27.129.80/32 trust
+host all biuser ::1/128 trust
+host all biuser fe80::250:56ff:fe9c:3d14/128 trust
+local replication biuser ident
+host replication biuser samehost trust
+host replication biuser 172.27.129.80/32 trust
+vi postgresql.conf
+listen_addresses = '*'
+
+port = 5432
+Restart the greenplum
+gpstop -r (To Restart)
+gpstop - u (To Stop)
+gpstart (To Start)

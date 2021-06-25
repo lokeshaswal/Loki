@@ -1,0 +1,54 @@
+yum install gcc zlib-devel readline-devel
+
+tar -xvf package.tar
+cd postgresql-x.x
+./configure
+make
+make install
+
+useradd postgres
+passwd postgres
+
+mkdir -p /cluster/pgdatabase/data/ --data directory
+chown -R postgres. pgdatabase
+chown -R postgres. /usr/local/pgsql/
+sudo chmod -R 777 /usr/local/pgsql/
+
+su postgres
+/usr/local/pgsql/bin/initdb -D /cluster/pgdatabase/data/ -U postgres -W
+
+/usr/local/pgsql/bin/pg_ctl -D /cluster/pgdatabase/data/ -l logfile start
+
+
+vi ~/.bashrc
+PATH=/usr/local/pgsql/bin:$PATH
+source ~/.bashrc
+
+cd /clusterpgdatabase/data/
+
+vi pg_hba.conf
+
+// put below text in last of the file
+
+host all all 0.0.0.0/0 trust
+
+vi postgresql.conf
+listen_addresses = '*'
+port = 5432
+
+/usr/local/pgsql/bin/pg_ctl -D /cluster/pgdatabase/data/ -l logfile restart
+
+netstat -apn |grep -i 5432
+create database biuser;
+create user biuser with encrypted password 'Airtel@20';
+ALTER USER biuser WITH SUPERUSER;
+
+
+
+/*New User Creation/*
+
+create user smartphone_bundle with encrypted password 'Airtel@123';
+GRANT USAGE ON SCHEMA rw to smartphone_bundle;
+grant all on all tables in schema rw to smartphone_bundle;
+grant all on all sequences in schema rw to smartphone_bundle;
+grant all on all functions in schema rw to smartphone_bundle;

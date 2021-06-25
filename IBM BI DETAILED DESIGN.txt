@@ -1,0 +1,51 @@
+Common for all Opco's
+- MSC
+- CCN Main
+- CCN DA
+- GGSN/PGW
+- SGSN/SGW
+- Airtel Money
+- LEAP Log
+- Pretups Log
+- SIMSwap
+- Postpaid Call Details (Singleview/Ipacs wherever applicable, i.e. Convergence Billing is not there.)
+
+Common for all Opco's except UG & CG
+- SDP Snapshot Main
+- SDP Snapshot DA
+- AIR RECHARGE
+- AIR RECHARGE DA
+- AIR ADJUSTMENT
+- AIR ADJUSTMENT DA
+- SDP ADJUSTMENT
+- SDP ADJUSTMENT DA
+
+Source's specific to UG & CG
+- VOU Main
+- VOU DA (UG Only)
+- MON Main
+- MON DA (UG Only)
+- MGR (CG Only)
+- COM Main
+- COM DA (UG Only)
+- Transfer (UG Only)
+- Adjustment Main (UG Only)
+- Adjustment DA (UG Only)
+- Account Balance
+- Account Information
+
+2. Data Processing layers and details of each
+
+Data is processed in following layers in all Opco's.
+- CDR/ODS: Meadiated (readable/parsed) CDRs are recieved from Mediation (CSG) & loaded in BI tables with some BI DWH Keys like Service Class Key, Service Usage Key (Voice/SMS/Data) etc. No aggregation or data transformation is done at this layer. Schema/Folder for all these tables is DWH_CDR_REPOSITORY_MOBILITY_<OPCO_CODE> e.g. DWH_CDR_REPOSITORY_MOBILITY_KE
+
+- Summary Layer: Source wise aggregation is done at this level. Data is kept at MSISDN level at this layer. Schema/Folder for all these tables is DWH_SUMMARY_MOBILITY_<OPCO_CODE> e.g. DWH_SUMMARY_MOBILITY_KE
+
+- Analytical Layer: Source wise aggregation is done at this level. Data is kept at dimension level. MSISDN is removed from this layer. Schema/Folder for all these tables is DWH_ANALYTICAL_MOBILITY_<OPCO_CODE> e.g. DWH_ANALYTICAL_MOBILITY_KE.
+
+- DataMart Layer/ Reporting Layer : Fact Level data, i.e. KPIs required for front end and reporting is populated in Fact Tables at this layer.
+Schema/Folder for all these tables is DM_BI_MOBILITY_<OPCO_CODE> e.g. DM_BI_MOBILITY_KE.
+
+- SOR: Transaction level meaningful data derived from CDRs is kept at this layer. Schema/Folder for all these tables is DWH_SOR_<OPCO_CODE>.
+
+- Dimensions : All the dimensions' data is kept in tables at DWH_SOR schema/folder, same is replicated in DM_BI_MOBILITY to be consumed by Cubes/Reports.
